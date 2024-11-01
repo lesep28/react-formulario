@@ -16,27 +16,43 @@ const Form = () => {
   });
   const [show, setShow] = useState(false);
   const [error, setError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState( "");
 
   console.log(user);
 
   const handleSubmit = (event) => {
     event.preventDefault();
     const regexNum = /[0-9]/;
-    const regexString= /[A-Za-z]/;
+    const regexString= /[a-zA-ZáÁ]$/;
     console.log(regexNum.test(user.edad));
-    if (
-      user.nombre.length >= 3 && regexString.test(user.nombre)&&
-      regexNum.test(user.edad) && !isNaN(user.edad)&&(user.edad>0)
-      //&& (user.pokemonFavorito)
-      
+    if (user.nombre.trim().length <= 3){
+      setError(true);
+      setErrorMessage("El nombre debe tener más de 3 carácteres")
+    } 
+    else if(!regexString.test(user.nombre)){
+      setError(true);
+      setErrorMessage("El nombre solo permite letras")
+    }
+    else if(!regexNum.test(user.edad)){
+      setError(true);
+      setErrorMessage("La edad debe ser un valor numérico")
 
-      //regexNum.test(user.direccion)
-    ) {
+    }
+    else if((user.edad<0) || (user.edad>99)){
+      setError(true);
+      setErrorMessage("La edad debe ser un valor mayor a 0 y menor a 99")
+
+    }
+    else if(user.pokemonFavorito.length <= 0){
+      setError(true);
+      setErrorMessage("El pokemón debe tener al menos un carácter")
+    }
+
+    else {
       setShow(true);
       setError(false);
-    } else {
-      setError(true);
     }
+    
   };
 
 
@@ -44,14 +60,13 @@ const Form = () => {
   return (
     <div>
         
-      {/* {condicion ? true : false } */}
       {show ? (
-        <Message user = {user} />
+        <Message user={user.nombre} edad={user.edad} pokemonFavorito={user.pokemonFavorito}/>
       ) : (
  
         <form onSubmit={handleSubmit}>
           <div className={FormStyles.formContainer}>
-          <span>Agregá tu Pokémon favorito completando las opciones.</span>
+          <span>Agrega tu Pokémon favorito completando las opciones.</span>
           <label>Nombre: </label>
           <input
             type="text"
@@ -60,17 +75,17 @@ const Form = () => {
             }
           />
           <label>Edad: </label>
-          <input
-            type="text"
+          <input 
+            type=  "text"
             onChange={(event) =>
-              setUser({ ...user, direccion: event.target.value })
+              setUser({ ...user, edad: event.target.value })
             }
           />
           <label>Pokémon favorito: </label>
           <input
             type="text"
             onChange={(event) =>
-              setUser({ ...user, direccion: event.target.value })
+              setUser({ ...user, pokemonFavorito: event.target.value })
             }
           />
           <button>Enviar</button>
@@ -78,7 +93,7 @@ const Form = () => {
           
           {error ? (
             <h4 style={{ color: "red" }}>
-              Por favor coloque la información correctamente
+              {errorMessage}
             </h4>
           ) : null}
         </form>
